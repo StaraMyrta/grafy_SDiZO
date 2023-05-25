@@ -22,7 +22,7 @@ void FordBellman::algorytmMacierz(Macierz* macierzSasiedztwa, int wierzcholekSta
         poprzednik[i] = -1;                 //Poprzednik jest niezdefiniowany.
     }
 
-    odleglosc[wierzcholekStartu] = 0;       //Odleg³oœæ do wierzcho³ka poczatekowego jest równa 0.
+    odleglosc[wierzcholekStartu] = 0;       //Odleg³oœæ do wierzcho³ka poczatkowego jest równa 0.
 
     for (int i = 0; i < macierzSasiedztwa->rozmiar(); i++)
     {

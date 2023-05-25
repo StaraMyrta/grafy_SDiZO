@@ -15,40 +15,46 @@ TestSciezki::~TestSciezki()
     }
 }
 
-void TestSciezki::stworzGraf(int wierzcholekStartu, int rozmWierzcholki, int gestosc)
+void TestSciezki::stworzGraf(int iloscWierzcholkow, int gestosc)
 {
     if (macierz != nullptr && lista != nullptr)
     {
         delete macierz;
         delete lista;
     }
-    macierz = new Macierz(rozmWierzcholki);
-    lista = new Lista(rozmWierzcholki);
+    macierz = new Macierz(iloscWierzcholkow);
+    lista = new Lista(iloscWierzcholkow);
 
-    int maxKrawedzs = static_cast<int>(gestosc / 100.0f * (rozmWierzcholki * rozmWierzcholki));
-    int krawedzCount = 0;
-    //Generacja drzewo rozpinaj¹ce.
-    for (int i = 0; i < rozmWierzcholki; i++)
+    //Maksymalna iloœæ krawêdzi to n(n-1)/2, uwzglêdniaj¹c gêstoœæ trzeba wynik przemno¿yæ przez gêstoœæ i zaokr¹gliæ w dó³. 
+    int maxKrawedzi = floor((iloscWierzcholkow * (iloscWierzcholkow - 1) * gestosc / 200));
+    int licznikKrawedzi = 0;
+    //Generujemy drzewo rozpinaj¹ce.
+    for (int i = 0; i < iloscWierzcholkow - 1; i++)
     {
-        if (i == wierzcholekStartu) continue;
-        int waga = (rand() % maxKrawedzs) + 1;
-        macierz->dodajKrawedz(wierzcholekStartu, i, waga);
-        lista->dodajKrawedz(wierzcholekStartu, i, waga);
-        krawedzCount++;
+        //Dla problemu najkrótszej œcie¿ki krawêdzie s¹ skierowane.
+        int waga = (rand() % maxKrawedzi) + 1;
+        macierz->dodajKrawedz(i, i + 1, waga);
+
+        lista->dodajKrawedz(i, i + 1, waga);
+
+        licznikKrawedzi++;
     }
 
-    //Dodajemy pozosta³e krawêdzie (zawsze zostanie wygenerowane chocia¿ drzewo rozpinaj¹ce).
-    while (krawedzCount < maxKrawedzs)
+    //Dodanie pozosta³e krawêdzie (zawsze zostanie wygenerowane chocia¿ drzewo rozpinaj¹ce).
+    while (licznikKrawedzi < maxKrawedzi)
     {
-        int poczatek = rand() % rozmWierzcholki;
-        int koniec = rand() % rozmWierzcholki;
-        int waga = (rand() % maxKrawedzs) + 1;
-
-        if (macierz->znajdzKrawedz(poczatek, koniec) == 0)
+        int poczatek = rand() % iloscWierzcholkow;
+        int koniec = rand() % iloscWierzcholkow;
+        int waga = (rand() % maxKrawedzi) + 1;
+        if (poczatek != koniec)         //Wyeliminowanie mo¿liwoœci stworzenia pêtli
         {
-            macierz->dodajKrawedz(poczatek, koniec, waga);
-            lista->dodajKrawedz(poczatek, koniec, waga);
-            krawedzCount++;
+            if (macierz->znajdzKrawedz(poczatek, koniec) == INT_MAX)
+            {
+                macierz->dodajKrawedz(poczatek, koniec, waga);
+
+                lista->dodajKrawedz(poczatek, koniec, waga);
+                licznikKrawedzi++;
+            }
         }
     }
 }
@@ -61,7 +67,7 @@ PomiarCzasu TestSciezki::dijkstraTest(int rozmWierzcholki, int gestosc, Dijkstra
     for (int i = 0; i < 100; i++)
     {
         int wierzcholekStartu = rand() % rozmWierzcholki;
-        stworzGraf(wierzcholekStartu, rozmWierzcholki, gestosc);
+        stworzGraf(rozmWierzcholki, gestosc);
         pomiar.czasStart();
         dijkstra->algorytmMacierz(macierz, wierzcholekStartu);
         pomiar.czasStop();
@@ -85,7 +91,7 @@ PomiarCzasu TestSciezki::fordBellmanTest(int rozmWierzcholki, int gestosc, FordB
     for (int i = 0; i < 100; i++)
     {
         int wierzcholekStartu = rand() % rozmWierzcholki;
-        stworzGraf(wierzcholekStartu, rozmWierzcholki, gestosc);
+        stworzGraf(rozmWierzcholki, gestosc);
         pomiar.czasStart();
         fordBellman->algorytmMacierz(macierz, wierzcholekStartu);
         pomiar.czasStop();
@@ -103,34 +109,27 @@ PomiarCzasu TestSciezki::fordBellmanTest(int rozmWierzcholki, int gestosc, FordB
 
 void TestSciezki::testyCzasu()
 {
-    int rozmWierzcholkis[] = { 100, 200, 300, 400, 500 };
-    int densities[] = { 20, 50, 75, 99 };
-    ofstream file;
-    file.open("sptResult.txt");
-    if (file.is_open())
+    int rozmWierzcholkis[] = { 50, 100, 150, 200, 250 };
+    int densities[] = { 25, 50, 75, 99 };
+    for (auto count : rozmWierzcholkis)
     {
-        for (auto count : rozmWierzcholkis)
+        auto* dijkstra = new Dijkstra(count);
+        for (auto gestosc : densities)
         {
-            auto* dijkstra = new Dijkstra(count);
-            for (auto gestosc : densities)
-            {
-                auto time = dijkstraTest(count, gestosc, dijkstra);
-                file << time.pierwszy << " " << time.drugi << "\n";
-            }
-            delete dijkstra;
+            auto time = dijkstraTest(count, gestosc, dijkstra);
+            cout << "Dijkstra :" << count << " wierzcholkow " << gestosc << "% gestosci " << time.pierwszy << " " << time.drugi << endl;
         }
-
-        file << "\n";
-        for (auto count : rozmWierzcholkis)
-        {
-            auto* fordBellman = new FordBellman(count);
-            for (auto gestosc : densities)
-            {
-                auto time = fordBellmanTest(count, gestosc, fordBellman);
-                file << time.pierwszy << " " << time.drugi << "\n";
-            }
-            delete fordBellman;
-        }
+        delete dijkstra;
     }
-    file.close();
+
+    for (auto count : rozmWierzcholkis)
+    {
+        auto* fordBellman = new FordBellman(count);
+        for (auto gestosc : densities)
+        {
+            auto time = fordBellmanTest(count, gestosc, fordBellman);
+            cout << "Ford-Bellman :" << count << " wierzcholkow " << gestosc << "% gestosci " << time.pierwszy << " " << time.drugi << endl;
+        }
+        delete fordBellman;
+    }
 }

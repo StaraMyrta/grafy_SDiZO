@@ -10,7 +10,7 @@ private:
     Macierz* macierz;       //WskaŸnik na obiekt klasy macierzy s¹siedztwa.
     Lista* lista;           //WskaŸnik na obiekt klasy listy s¹siedztwa.
     Pomiar pomiar;          //Obiekt klasy s³u¿acej do wykonywania pomiarów.
-    void stworzGraf(int wierzcholekStartu, int rozmWierzcholki, int gestosc);                   //Tworzy graf o 'rozm' wierzcho³kach oraz 'gestosc' gêstoœci.
+    void stworzGraf(int rozmWierzcholki, int gestosc);                   //Tworzy graf o 'rozm' wierzcho³kach oraz 'gestosc' gêstoœci.
     PomiarCzasu dijkstraTest(int rozmWierzcholki, int gestosc, Dijkstra* dijkstra);             //Testuje wydajnoœæ wykonywania siê algorytmu Dijkstry.
     PomiarCzasu fordBellmanTest(int rozmWierzcholki, int gestosc, FordBellman* fordBellman);    //Testuje wydajnoœæ wykonywania siê algorytmu Forda-Bellmana.
 public:

@@ -14,7 +14,7 @@ int Kruskal::znajdz(Zbior* zbiory, int element)
 
 void Kruskal::polaczZbiory(Zbior* zbiory, int pierwszy, int drugi)
 {
-    //Znajdacja reprezentanta dla obu elementów.
+    //Znajduje reprezentanta dla obu elementów.
     int pierwszyKorzen = znajdz(zbiory, pierwszy);
     int drugiKorzen = znajdz(zbiory, drugi);
 

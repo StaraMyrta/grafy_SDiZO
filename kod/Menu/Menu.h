@@ -28,23 +28,21 @@ private:
 
 	int wejscie;
 	bool powrot = false;
-	bool nieznanaKomkonieca = true;
-	void wyborTworzenieDrzewo();
-	void wczytajPlikDrzewo();
-	void stworzLosowoDrzewo();
-	void wyborTworzenieSciezka();
-	void wczytajPlikSciezka();
-	void stworzLosowoSciezka();
+	bool nieznanaKomenda = true;
+
+	void wczytajPlikNieskierowany();
+	void wczytajPlikSkierowany();
 	void wyswietlenie();
 	void wyborDrzewa();
 	void drzewoPrima();
 	static void wyswietlDrzewoPrima(int* key, int* polaczenie, int rozm);
 	void drzewoKruskala();
 	static void wyswietlDrzewoKruskala(list<Krawedz>& listaKrawedzi);
-	void drzewoTesty();
 	void wyborSciezki();
 	void sciezkaDijkstra();
 	void sciezkaFordBellman();
 	void wyswietlSciezke(int* odleglosc, int* poprzednik);
+
+	void drzewoTesty();
 	void sciezkaTesty();
 };

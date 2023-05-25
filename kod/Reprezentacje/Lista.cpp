@@ -5,13 +5,12 @@ using namespace std;
 Lista::Lista(int rozm)
 {
     this->rozm = rozm;
-    //Alokacja pamiêæ na 'rozm' list.
+    //Alokacja pamiêci na 'rozm' list.
     baza = new list<ElemListy>[rozm];
 }
 
 Lista::~Lista()
 {
-    //Dealokacja tablicê bazow¹.
     delete[] baza;
 }
 

@@ -10,33 +10,42 @@ void Menu::wybor()
 {
     cout << endl;                                               //Wybór dzia³ania.
     cout << "Wybierz co chcesz zrobic:" << endl;
-    cout << "1. Wyswietlenie grafu (1)" << endl;
-    cout << "2. Wyznaczenie minimalnego drzewa rozpinajacego (2)" << endl;
-    cout << "3. Wyznaczenie najkrotszej sciezki w grafie (3)" << endl;
-    cout << "4. Cofnij (4)" << endl;
+    cout << "1. Stworzenie grafu nieskierowanego (1)" << endl;
+    cout << "2. Stworzenie grafu skierowanego (2)" << endl;
+    cout << "3. Wyswietlenie grafu (3)" << endl;
+    cout << "4. Wyznaczenie minimalnego drzewa rozpinajacego (4)" << endl;
+    cout << "5. Wyznaczenie najkrotszej sciezki w grafie (5)" << endl;
+    cout << "6. Cofnij (6)" << endl;
     cout << "Wybierz opcje: ";
     powrot = false;                                             //Wczytanie danych z konsoli do 'wejscie' i wywo³anie menu wybranej struktury.
     while (!powrot)
     {
         cin >> wejscie;
-        nieznanaKomkonieca = true;                                 //Jeœli komenda to 'powrot' ustawione zostaj¹ flagi umo¿liwiaj¹ce wyjœcie z pêtli.
-
+        nieznanaKomenda = true;                              //Jeœli komenda to 'powrot' ustawione zostaj¹ flagi umo¿liwiaj¹ce wyjœcie z pêtli.
         if (wejscie == 1)
+        {
+            wczytajPlikNieskierowany();
+        }
+        if (wejscie == 2)
+        {
+            wczytajPlikSkierowany();
+        }
+        if (wejscie == 3)
         {
             wyswietlenie();
         }
-        else if (wejscie == 2)
+        else if (wejscie == 4)
         {
             wyborDrzewa();
         }
-        else if (wejscie == 3)
+        else if (wejscie == 5)
         {
             wyborSciezki();
         }
-        else if (wejscie == 4)
+        else if (wejscie == 6)
         {
             powrot = true;
-            nieznanaKomkonieca = false;
+            nieznanaKomenda = false;
         }
         else
         {
@@ -46,43 +55,7 @@ void Menu::wybor()
     }
 }
 
-void Menu::wyborTworzenieDrzewo()
-{
-    cout << endl;                                               //Wybór dzia³ania.
-    cout << "Wybierz co chcesz zrobic:" << endl;
-    cout << "1. Wczytanie danych z pliku (1)" << endl;
-    cout << "2. Losowe stworzenie grafu (2)" << endl;
-    cout << "3. Powrot do glownego menu (3)" << endl;
-    cout << "Wybierz opcje: ";
-    powrot = false;                                             //Wczytanie danych z konsoli do 'wejscie' i wywo³anie wybranej akcji.
-    while (!powrot)
-    {
-        cin >> wejscie;
-        nieznanaKomkonieca = true;                                 //Jeœli komenda to 'powrot' ustawione zostaj¹ flagi umo¿liwiaj¹ce wyjœcie z pêtli.
-
-        if (wejscie == 1)
-        {
-            wczytajPlikDrzewo();
-        }
-        else if (wejscie == 2)
-        {
-            stworzLosowoDrzewo();
-        }
-        else if (wejscie == 3)
-        {
-            powrot = true;
-            nieznanaKomkonieca = false;
-        }
-        else
-        {
-            cout << "Nieznana komenda! Sprobuj jeszcze raz:" << endl;
-            wyborTworzenieDrzewo();
-        }
-    }
-    wyborDrzewa();
-}
-
-void Menu::wczytajPlikDrzewo()
+void Menu::wczytajPlikNieskierowany()
 {
     //Standardowe wczytywanie z pliku.
     string nazwa;
@@ -101,7 +74,7 @@ void Menu::wczytajPlikDrzewo()
         {
             delete lista;
         }
-            
+
         plik >> ileKrawedzi;
         plik >> ileWierzcholkow;
         plik >> wierzcholekStartowy;
@@ -126,95 +99,7 @@ void Menu::wczytajPlikDrzewo()
     wyborDrzewa();
 }
 
-void Menu::stworzLosowoDrzewo()
-{//Wczytanie parametry generowanego grafu od u¿ytkownika.
-    int iloscWierzcholkow, gestosc;
-    cout << "\nPodaj liczbe wierzcholkow grafu: ";
-    cin >> iloscWierzcholkow;
-    cout << "Podaj gestosc grafu (w %): ";
-    cin >> gestosc;
-
-    if (macierz != nullptr && lista != nullptr)
-    {
-        delete macierz;
-        delete lista;
-    }
-    macierz = new Macierz(iloscWierzcholkow);
-    lista = new Lista(iloscWierzcholkow);
-
-    //Maksymalna iloœæ krawêdzi to n(n-1)/2, uwzglêdniaj¹c gêstoœæ trzeba wynik przemno¿yæ przez gêstoœæ i zaokr¹gliæ w dó³. 
-    int maxKrawedzi = floor((iloscWierzcholkow*(iloscWierzcholkow-1)* gestosc/200));
-    int licznikKrawedzi = 0;
-    //Generujemy drzewo rozpinaj¹ce.
-    for (int i = 0; i < iloscWierzcholkow - 1; i++)
-    {
-        //Dla problemu minimalnego drzewa rozpinaj¹cego krawêdzie s¹ nieskierowane.
-        int waga = (rand() % maxKrawedzi) + 1;
-        macierz->dodajKrawedz(i, i + 1, waga);
-        macierz->dodajKrawedz(i + 1, i, waga);
-
-        lista->dodajKrawedz(i, i + 1, waga);
-        lista->dodajKrawedz(i + 1, i, waga);
-        licznikKrawedzi++;
-    }
-
-    //Dodajemy pozosta³e krawêdzie (zawsze zostanie wygenerowane chocia¿ drzewo rozpinaj¹ce).
-    while (licznikKrawedzi < maxKrawedzi)
-    {
-        int poczatek = rand() % iloscWierzcholkow;
-        int koniec = rand() % iloscWierzcholkow;
-        int waga = (rand() % maxKrawedzi) + 1;
-
-        if (macierz->znajdzKrawedz(poczatek, koniec) == 0)
-        {
-            macierz->dodajKrawedz(poczatek, koniec, waga);
-            macierz->dodajKrawedz(koniec, poczatek, waga);
-
-            lista->dodajKrawedz(poczatek, koniec, waga);
-            lista->dodajKrawedz(koniec, poczatek, waga);
-            licznikKrawedzi++;
-        }
-    }
-    wyborDrzewa();
-}
-
-void Menu::wyborTworzenieSciezka()
-{
-    cout << endl;                                               //Wybór dzia³ania.
-    cout << "Wybierz co chcesz zrobic:" << endl;
-    cout << "1. Wczytanie danych z pliku (1)" << endl;
-    cout << "2. Losowe stworzenie grafu (2)" << endl;
-    cout << "3. Powrot do glownego menu (3)" << endl;
-    cout << "Wybierz opcje: ";
-    powrot = false;                                             //Wczytanie danych z konsoli do 'wejscie' i wywo³anie wybranej akcji.
-    while (!powrot)
-    {
-        cin >> wejscie;
-        nieznanaKomkonieca = true;                                 //Jeœli komenda to 'powrot' ustawione zostaj¹ flagi umo¿liwiaj¹ce wyjœcie z pêtli.
-
-        if (wejscie == 1)
-        {
-            wczytajPlikSciezka();
-        }
-        else if (wejscie == 2)
-        {
-            stworzLosowoSciezka();
-        }
-        else if (wejscie == 3)
-        {
-            powrot = true;
-            nieznanaKomkonieca = false;
-        }
-        else
-        {
-            cout << "Nieznana komenda! Sprobuj jeszcze raz:" << endl;
-            wyborTworzenieSciezka();
-        }
-    }
-    wyborSciezki();
-}
-
-void Menu::wczytajPlikSciezka()
+void Menu::wczytajPlikSkierowany()
 {
     //Standardowe wczytywanie z pliku.
     string nazwa;
@@ -256,59 +141,6 @@ void Menu::wczytajPlikSciezka()
     wyborSciezki();
 }
 
-void Menu::stworzLosowoSciezka()
-{
-    //Wczytujemy parametry generowanego grafu od u¿ytkownika.
-    int iloscWierzcholkow, gestosc;
-    cout << "\nPodaj liczbe wierzcholkow grafu: ";
-    cin >> iloscWierzcholkow;
-    cout << "Podaj gestosc grafu (w %): ";
-    cin >> gestosc;
-
-    if (macierz != nullptr && lista != nullptr)
-    {
-        delete macierz;
-        delete lista;
-    }
-    macierz = new Macierz(iloscWierzcholkow);
-    lista = new Lista(iloscWierzcholkow);
-
-    //Maksymalna iloœæ wierzcho³ków to suma ci¹gu arytmetycznego an = n.
-    int maxKrawedzi = static_cast<int>(gestosc / 100.0f * (((iloscWierzcholkow + 1) / 2.0f) * iloscWierzcholkow));
-    int licznikKrawedzi = 0;
-    //Generujemy drzewo rozpinaj¹ce.
-    for (int i = 0; i < iloscWierzcholkow - 1; i++)
-    {
-        //Dla problemu minimalnego drzewa rozpinaj¹cego krawêdzie s¹ nieskierowane.
-        int waga = (rand() % maxKrawedzi) + 1;
-        macierz->dodajKrawedz(i, i + 1, waga);
-        macierz->dodajKrawedz(i + 1, i, waga);
-
-        lista->dodajKrawedz(i, i + 1, waga);
-        lista->dodajKrawedz(i + 1, i, waga);
-        licznikKrawedzi++;
-    }
-
-    //Dodajemy pozosta³e krawêdzie (zawsze zostanie wygenerowane chocia¿ drzewo rozpinaj¹ce).
-    while (licznikKrawedzi < maxKrawedzi)
-    {
-        int poczatek = rand() % iloscWierzcholkow;
-        int koniec = rand() % iloscWierzcholkow;
-        int waga = (rand() % maxKrawedzi) + 1;
-
-        if (macierz->znajdzKrawedz(poczatek, koniec) == 0)
-        {
-            macierz->dodajKrawedz(poczatek, koniec, waga);
-            macierz->dodajKrawedz(koniec, poczatek, waga);
-
-            lista->dodajKrawedz(poczatek, koniec, waga);
-            lista->dodajKrawedz(koniec, poczatek, waga);
-            licznikKrawedzi++;
-        }
-    }
-
-}
-
 void Menu::wyswietlenie()
 {
     if (macierz != nullptr && lista != nullptr)
@@ -319,44 +151,40 @@ void Menu::wyswietlenie()
         macierz->wyswietl();
     }
     else cout << "\nGraf jest pusty!" << endl;
+    wybor();
 }
 
 void Menu::wyborDrzewa()
 {
     cout << endl;                                               //Wybór dzia³ania.
     cout << "Wybierz dzialanie:" << endl;
-    cout << "1. Stworz graf nieskierowany (1)" << endl;
-    cout << "2. Algorytm Kruskala (2)" << endl;
-    cout << "3. Algorytm Prima (3)" << endl;
-    cout << "4. Wykonanie testow dla obu algorytmow(4)" << endl;
-    cout << "5. Powrot do glownego menu (5)" << endl;
+    cout << "1. Algorytm Kruskala (1)" << endl;
+    cout << "2. Algorytm Prima (2)" << endl;
+    cout << "3. Wykonanie testow dla obu algorytmów (algorytm Prima tylko dla reprezentacji macierzowej) (3)" << endl;
+    cout << "4. Powrot do glownego menu (4)" << endl;
     cout << "Wybierz opcje: ";
     powrot = false;                                             //Wczytanie danych z konsoli do 'wejscie' i wywo³anie wybranej akcji.
     while (!powrot)
     {
         cin >> wejscie;
-        nieznanaKomkonieca = true;                                 //Jeœli komenda to 'powrot' ustawione zostaj¹ flagi umo¿liwiaj¹ce wyjœcie z pêtli.
+        nieznanaKomenda = true;                                 //Jeœli komenda to 'powrot' ustawione zostaj¹ flagi umo¿liwiaj¹ce wyjœcie z pêtli.
 
-        if (wejscie == 1)
-        {
-            wyborTworzenieDrzewo();
-        }
-        else if (wejscie == 2)
+         if (wejscie == 1)
         {
             drzewoKruskala();
         }
-        else if (wejscie == 3)
+        else if (wejscie == 2)
         {
             drzewoPrima();
         }
-        else if (wejscie == 4)
+        else if (wejscie == 3)
         {
             drzewoTesty();
         }
-        else if (wejscie == 5)
+        else if (wejscie == 4)
         {
             powrot = true;
-            nieznanaKomkonieca = false;
+            nieznanaKomenda = false;
         }
         else
         {
@@ -429,49 +257,37 @@ void Menu::wyswietlDrzewoKruskala(list<Krawedz>& listaKrawedzi)
     cout << "Waga drzewa wynosi: " << mstWeight << endl;
 }
 
-void Menu::drzewoTesty()
-{
-    auto* test = new TestDrzewa();
-    test->testyCzasu();
-    delete test;
-}
-
 void Menu::wyborSciezki()
 {
     cout << endl;                                               //Wybór dzia³ania.
     cout << "Wybierz dzialanie:" << endl;
-    cout << "1. Stworzenie grafu skierowanego (1)" << endl;
-    cout << "2. Algorytm Dijkstry (2)" << endl;
-    cout << "3. Algorytm Bellmana-Forda (3)" << endl;
-    cout << "4. Wykonanie testow dla obu algorytmow (4)" << endl;
-    cout << "5. Powrot do glownego menu (5)" << endl;
+    cout << "1. Algorytm Dijkstry (1)" << endl;
+    cout << "2. Algorytm Bellmana-Forda (2)" << endl;
+    cout << "3. Wykonanie testow dla obu algorytmow (3)" << endl;
+    cout << "4. Powrot do glownego menu (4)" << endl;
     cout << "Wybierz opcje: ";
     powrot = false;                                             //Wczytanie danych z konsoli do 'wejscie' i wywo³anie wybranej akcji.
     while (!powrot)
     {
         cin >> wejscie;
-        nieznanaKomkonieca = true;                                 //Jeœli komenda to 'powrot' ustawione zostaj¹ flagi umo¿liwiaj¹ce wyjœcie z pêtli.
+        nieznanaKomenda = true;                                 //Jeœli komenda to 'powrot' ustawione zostaj¹ flagi umo¿liwiaj¹ce wyjœcie z pêtli.
 
         if (wejscie == 1)
         {
-            wyborTworzenieSciezka();
+            sciezkaDijkstra();
         }
         else if (wejscie == 2)
         {
-            sciezkaDijkstra();
-        }
-        else if (wejscie == 3)
-        {
             sciezkaFordBellman();
         }
-        else if (wejscie == 4)
+        else if (wejscie == 3)
         {
             sciezkaTesty();
         }
         else if (wejscie == 4)
         {
             powrot = true;
-            nieznanaKomkonieca = false;
+            nieznanaKomenda = false;
         }
         else
         {
@@ -553,6 +369,13 @@ void Menu::wyswietlSciezke(int* odleglosc, int* poprzednik)
 void Menu::sciezkaTesty()
 {
     auto* test = new TestSciezki();
+    test->testyCzasu();
+    delete test;
+}
+
+void Menu::drzewoTesty()
+{
+    auto* test = new TestDrzewa();
     test->testyCzasu();
     delete test;
 }
